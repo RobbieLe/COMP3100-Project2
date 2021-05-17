@@ -1,7 +1,7 @@
 # COMP3100-Project2
 Stage 2 of the project for COMP3100, where a new scheduling algorithm is to be implemented
 
-# COMP3100-Project-Group29
+# COMP3100-Project-Stage 2
 > This project aims to develop a job scheduler for distributed systems, e.g., compute clusters and
 (cloud) data centres. The project shall be carried out in groups of 3 (2 in exceptional cases with the
 unit convenor’s approval). - Taken straight from Project Specfications
@@ -9,5 +9,4 @@ unit convenor’s approval). - Taken straight from Project Specfications
 # Members:
 - StudentID | Student Name | GitHub Username
 
-- 43603467 | Joshua Brookes     | Br00xx
 - 45948852 | Robinson Le 		| RobbieLe
