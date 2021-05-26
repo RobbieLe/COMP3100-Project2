@@ -18,7 +18,7 @@ public class Refactor_Job {
     //     return submitTime;
     // }
     
-    public String JobNeeds() {
+    public String getJobNeeds() {
         return coreCount + " " + memory + " " + storage;
     }
 }
