@@ -16,4 +16,8 @@ public class Refactor_Server {
     public String getServerTypeID() {
         return serverType + " " + serverID;
     }
+
+    public int intCoreCount() {
+        return Integer.parseInt(coreCount);
+    }
 }
