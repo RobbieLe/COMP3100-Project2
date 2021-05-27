@@ -15,7 +15,8 @@ public class Refactor_Main {
 
         ArrayList<Refactor_Server> serverList = new ArrayList<Refactor_Server>();
         int serverCount = 0;
-        
+        String algorithm = args[2];
+
         Refactor_Job job;
         Refactor_Server server;
         Refactor_Scheduler scheduler = new Refactor_Scheduler(serverList);
@@ -40,9 +41,9 @@ public class Refactor_Main {
                 
                 
                 case "Ready":
-                    if (inString.contains("JOBN")) {
+                    if (serverCount == 0) {
                         job = new Refactor_Job(inString);
-                        outString = "GETS Capable" + job.getJobNeeds();
+                        outString = "GETS All";
                         state = "serverListPrep";
                     }
                     break;

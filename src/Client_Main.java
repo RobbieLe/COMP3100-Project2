@@ -27,11 +27,18 @@ public class Client_Main {
                                   // initial to begin communication
         String jobString = ""; // Keeping job assignment in this variable for later use in scheduling
         int serverCount = 0; // Used to
+        int errCount = 0;
 
         while (!state.equals("QUIT")) { // Looping for the whole communication process until the client is going to quit
             if (!state.equals("Initial")) { // Ensures that it doesn't read anything in for the initial HELO
                                             // communication
                 inString = socketIn.readLine();
+            }
+            if (inString.contains("ERR")) {
+                errCount++;
+                if (errCount >= 3) {
+                    state = "ERROR";
+                }
             }
 
             switch (state) {
@@ -82,8 +89,13 @@ public class Client_Main {
                                           // the specs of the servers)
                 break;
             case "SysInfoReading": // Gets the list of the servers one-by-one
-                readSystemList(inString, serverList, socketIn, serverCount); // Calling this method to add servers to
+            if (serverList.isEmpty()) { 
+                readSystemList(inString, serverList, socketIn, serverCount); 
+                // Calling this method to add servers to
                                                                              // the list serverList
+            } else {
+                updateSystemList(inString, serverList, socketIn, serverCount);
+            }
                 outString = "OK"; // Reply OK to confirm we received the message
                 state = "Ready"; // Swap the next state ("JobScheduling") to begin to schedule the job given
                                          // before
@@ -92,9 +104,18 @@ public class Client_Main {
                 //  SCHEDULING JOBS
                 case "JobScheduling":
                     if (inString.contains("JOBN")) {        // Check if the message the server sent was indeed the JOBN
-                        jobString = inString;       //  Keep the job assigned to client for later use
-                        test = new Client_Job(jobString);
-                    }
+                        if (!jobString.equals(inString)) {
+                            jobString = inString;       //  Keep the job assigned to client for later use
+                            test = new Client_Job(jobString);
+                            outString = "GETS Capable " + test.JobNeeds();
+                            state = "SysInfoPrep";
+
+                            /*
+                                jobString = inString;       //  Keep the job assigned to client for later use
+                                test = new Client_Job(jobString);
+                            */
+                        }
+                    } 
                     
                     if (inString.contains("NONE")) {    //If the message was NONE, start stopping the program
                         outString = "QUIT";     //  Change the message we send to QUIT to tell the server we are done
@@ -112,9 +133,9 @@ public class Client_Main {
                             */ 
                             break;
                         } else
-                        state = "NewJob";       //  Send to NewJob to ask for the new JOBN
+                        state = "Ready";       //  Send to NewJob to ask for the new JOBN
                     } else {
-                        outString = "SCHD " + test.jobID + " " + getLargestServer(serverList);     //SCHD Message construction
+                        outString = "SCHD " + test.jobID + " " + getSmallestServer(serverList);     //SCHD Message construction
                         state = "Ready";        //  Change state, to then ask for a new job
                     }
                     break;
@@ -129,9 +150,9 @@ public class Client_Main {
                 quitCommunication(din, dout, s); // Close connection, if something bad happens
             } // End of Switch(state)
 
-            // System.out.println("InString: " + inString);
-            // System.out.println("OutString: " + outString);
-            // System.out.println("State: " + state);
+            System.out.println("InString: " + inString);
+            System.out.println("OutString: " + outString);
+            System.out.println("State: " + state);
 
 
             dout.write((outString + "\n").getBytes()); // Send the message set by the switch(outString) with its various
@@ -173,6 +194,25 @@ public class Client_Main {
         }
     }
 
+    private static void updateSystemList(String inString, ArrayList<String[]> serverList, BufferedReader socketIn,
+            int serverCount) throws IOException {
+        
+        String[] temp;
+        for (int i = 0; i < serverCount; i++) { // Looping with result from getServerCount() as limit
+            if (i != 0) { // Ensure we are not reading with the initial loop to prevent skipping records
+                          // of the server list, since we have already read it with the outer while loop
+                inString = socketIn.readLine(); // Read the server record and store into this String
+            }
+            temp = inString.split(" ");
+            if (i < serverList.size()) {
+                serverList.set(i, temp); // Adding the server record into the arrayList for future processing (getting
+                                  // the largest server)
+            } else {
+                serverList.add(temp);
+            }
+        }
+    }
+
     // Closing the connections with the server
     private static void quitCommunication(DataInputStream din, DataOutputStream dout, Socket s) throws IOException {
         din.close(); // Close InputBufferStream
@@ -201,4 +241,48 @@ public class Client_Main {
 
         return largestServer[0] + " " + largestServer[1]; // We want to return the Server-type and ID
     }
+
+    private static String getSmallestServer(ArrayList<String[]> serverList) {
+        String smallestServer[] = serverList.get(0); // Creating a string array to store the information of the current
+                                                    // largest server
+        String test[]; // Create a second string array to hold what we are going to compared
+                       // largestServer[] to
+
+        for (int i = 0; i < serverList.size() - 1; i++) { // Loop with serverList
+            test = serverList.get(i + 1); // Have test have a copy of the server details one interation ahead
+            if (Integer.parseInt(smallestServer[4]) > Integer.parseInt(test[4])) { // Compare the Core-Count in the
+                                                                                  // String which will be parsed to an
+                                                                                  // int
+                smallestServer = test; // If the test had the server with more counts, swap largestServer to that
+            }
+        }
+
+        return smallestServer[0] + " " + smallestServer[1]; // We want to return the Server-type and ID
+    }
+
+    // private static String newAlgorithm(ArrayList<String[]> serverList) throws InterruptedException {
+    //     String[] bestServer = null;
+    //     ArrayList<String[]> comparison = new ArrayList<String[]>();
+    //     String[] test;
+
+    //     if (!serverList.isEmpty()) {
+    //         bestServer = serverList.get(0);
+    //     }
+
+    //     for (int i = 0; i < serverList.size(); i++) {
+    //         //test = serverList.get(i+1);
+            
+    //         if (serverList.get(i)[3].equals("inactive")) {
+    //             comparison.add(serverList.get(i));
+    //         } else if (serverList.get(i)[3].equals("idle")) {
+    //             comparison.add(serverList.get(i));
+    //         }
+
+
+    //     }
+    //     if (!comparison.isEmpty()) {
+    //         bestServer = getSmallestServer(comparison);
+    //     }
+    //     return bestServer[0] + " " + bestServer[1];
+    // }
 }
