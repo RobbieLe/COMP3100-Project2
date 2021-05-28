@@ -1,7 +1,7 @@
-public class Refactor_Job {
+public class Job {
     String submitTime, jobID, estRuntime, coreCount, memory, storage;
 
-    public Refactor_Job(String jobString) {
+    public Job(String jobString) {
         String[] splitString = jobString.split(" ");
 
         submitTime = splitString[1];
@@ -18,7 +18,7 @@ public class Refactor_Job {
     //     return submitTime;
     // }
     
-    public String JobNeeds() {
+    public String getJobNeeds() {
         return coreCount + " " + memory + " " + storage;
     }
 }
