@@ -32,16 +32,6 @@ public class Scheduler {
     public String newAlgorithm() {
         Server best = null;
         String outString = "";
-
-        // if (filterList("inactive").isEmpty()) {
-        //     if (filterList("booting").isEmpty()) {
-        //         if (filterList("idle").isEmpty()) {
-        //             best = getLargestServer(filterList("active"));
-        //         }
-        //         best = getSmallestServer(filterList("idle"));
-        //     }
-        //     best = getSmallestServer(filterList("inactive"));
-        // }
         
         if (!filterList("inactive").isEmpty()) {
             if (!filterList("idle").isEmpty()) {
@@ -53,7 +43,6 @@ public class Scheduler {
         if (best == null) {
             best = shortestQueue();
         }
-
         best.jobCount++;
         outString = best.serverType + " " + best.serverID;
         return outString;
@@ -65,7 +54,7 @@ public class Scheduler {
 
         for (int i = 0; i < serverList.size() -1; i++) {
             test = serverList.get(i + 1);
-            if (largest.intCoreCount() < test.intCoreCount()) {
+            if (largest.getCoreCount() < test.getCoreCount()) {
                 largest = test;
             }
         }
@@ -79,7 +68,7 @@ public class Scheduler {
 
         for (int i = 0; i < serverList.size() -1; i++) {
             test = serverList.get(i + 1);
-            if (largest.intCoreCount() > test.intCoreCount()) {
+            if (largest.getCoreCount() > test.getCoreCount()) {
                 largest = test;
             }
         }
@@ -91,7 +80,7 @@ public class Scheduler {
         ArrayList<Server> temp = new ArrayList<Server>();
 
         for (int i = 0; i < serverList.size(); i++) {
-            if (serverList.get(i).state.equals(state) && serverList.get(i).jobCount < 3) {
+            if (serverList.get(i).state.equals(state) ){//&& serverList.get(i).jobCount < 3) {
                 temp.add(serverList.get(i));
             }
         }
@@ -104,7 +93,7 @@ public class Scheduler {
 
         for (int i = 0; i < serverList.size() -1; i++) {
             test = serverList.get(i + 1);
-            if (best.jobCount > test.jobCount) {
+            if (best.getWaitingJobs() > test.getWaitingJobs()) {
                 best = test;
             }
         }

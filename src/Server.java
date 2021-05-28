@@ -1,6 +1,7 @@
 public class Server {
     String serverType, serverID, state, curStartTime, coreCount, memory, disk;
-    int jobCount = 0;
+    String waitingJobs, runningJobs;
+    int jobCount;
 
     public Server(String serverDetail) {
         String[] splitString = serverDetail.split(" ");
@@ -12,13 +13,23 @@ public class Server {
         coreCount = splitString[4];
         memory = splitString[5];
         disk = splitString[6];
+        waitingJobs = splitString[7];
+        runningJobs = splitString[8];
     }
 
     public String getServerTypeID() {
         return serverType + " " + serverID;
     }
 
-    public int intCoreCount() {
+    public int getCoreCount() {
         return Integer.parseInt(coreCount);
+    }
+
+    public int getWaitingJobs() {
+        return Integer.parseInt(waitingJobs);
+    }
+
+    public int getRunningJobs() {
+        return Integer.parseInt(runningJobs);
     }
 }
