@@ -2,11 +2,9 @@ import java.util.ArrayList;
 
 public class Scheduler {
     ArrayList<Server> serverList;
-    Job job;
 
-    public Scheduler(ArrayList<Server> serverList, Job job) {
+    public Scheduler(ArrayList<Server> serverList) {
         this.serverList = serverList;
-        this.job = job;
     }
 
     // Determine which scheduling method to be used based on the command line
@@ -39,10 +37,9 @@ public class Scheduler {
     // waiting jobs
     public String newAlgorithm() {
         Server best = shortestQueue(serverList); // Finds the server with the least amount of jobs
-        String outString = best.serverType + " " + best.serverID; // have the string prep for the SCHD message
-                                                                  // with the server details (type and ID)
 
-        return outString;
+        return best.getServerTypeID(); // have the string prep for the SCHD message with the server details (type and
+                                       // ID)
     }
 
     // From within a ArrayList of servers, find the server with the most amount of

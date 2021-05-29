@@ -16,7 +16,7 @@ public class Main {
         ArrayList<Server> serverList = new ArrayList<Server>();
 
         Job job = null;
-        Scheduler scheduler = new Scheduler(serverList, job);
+        Scheduler scheduler = new Scheduler(serverList);
 
         // inString = message from server, outString = message to be sent
         // state = determine which switch to be in, based on what was sent and received
@@ -94,7 +94,7 @@ public class Main {
                     readServerList(inString, serverList, socketIn, serverCount); //
                     listUpdated = true; // Change to true, to allow the Client to know that the serverList has been
                                         // updated with servers to be able to handle the job
-                    scheduler = new Scheduler(serverList, job); // Update scheduler to have the current serverList and
+                    scheduler = new Scheduler(serverList); // Update scheduler to have the current serverList and
                                                                 // the current job
                     outString = "OK";
                     state = "Ready";
