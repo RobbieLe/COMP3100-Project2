@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-
 public class Scheduler {
     ArrayList<Server> serverList;
     Job job;
@@ -10,19 +9,19 @@ public class Scheduler {
     }
 
     public String schedule(String algorithm) {
-        // To be completed
         switch (algorithm) {
             case "ATL":
                 return allToLargest();
             case "NEW":
                 return newAlgorithm();
             default:
-                return "UNABLE TO LOCATE ALGORITHM";
+                System.out.println("Please input a valid algorithm");
+                System.exit(1);
+                return null;
         }
     }
 
     public String allToLargest() {
-
         Server largest = getLargestServer(serverList);
         String outString = largest.serverType + " " + largest.serverID;
         
@@ -33,17 +32,9 @@ public class Scheduler {
         Server best = null;
         String outString = "";
         
-        if (!filterList("inactive").isEmpty()) {
-            if (!filterList("idle").isEmpty()) {
-                best = getSmallestServer(filterList("idle"));
-            }
-            best = getSmallestServer(filterList("inactive"));
+        if (best == null ) {
+            best = shortestQueue(serverList);
         }
-
-        if (best == null) {
-            best = shortestQueue();
-        }
-        best.jobCount++;
         outString = best.serverType + " " + best.serverID;
         return outString;
     }
@@ -58,7 +49,6 @@ public class Scheduler {
                 largest = test;
             }
         }
-
         return largest;
     }
 
@@ -72,23 +62,11 @@ public class Scheduler {
                 largest = test;
             }
         }
-
         return largest;
     }
 
-    private ArrayList<Server> filterList(String state) {
-        ArrayList<Server> temp = new ArrayList<Server>();
-
-        for (int i = 0; i < serverList.size(); i++) {
-            if (serverList.get(i).state.equals(state) ){//&& serverList.get(i).jobCount < 3) {
-                temp.add(serverList.get(i));
-            }
-        }
-        return temp;
-    }
-
-    private Server shortestQueue() {
-        Server best = getLargestServer(serverList);
+    private Server shortestQueue(ArrayList<Server> serverList) {
+        Server best = getSmallestServer(serverList);
         Server test;
 
         for (int i = 0; i < serverList.size() -1; i++) {
@@ -97,7 +75,6 @@ public class Scheduler {
                 best = test;
             }
         }
-
         return best;
     }
 

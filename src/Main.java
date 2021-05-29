@@ -13,15 +13,13 @@ public class Main {
         DataOutputStream dout = new DataOutputStream(s.getOutputStream());
         BufferedReader socketIn = new BufferedReader(new InputStreamReader(din));
 
-        ArrayList<Job> jobList = new ArrayList<Job>();
         ArrayList<Server> serverList = new ArrayList<Server>();
-        //ArrayList<Server> fullServerList = new ArrayList<Server>();
 
         Job job = null;
         Scheduler scheduler = new Scheduler(serverList, job);
 
         String inString = "", outString = "", state = "Initial";
-        int serverCount = 0, jobCount = 0;
+        int serverCount = 0;
         String algorithm = "";
         boolean listUpdated = false;
 
@@ -57,17 +55,11 @@ public class Main {
                     break;
 
                 case "Decision":
-                    // if (fullServerList.isEmpty()) {
-                    //     job = new Job(inString);
-                    //     outString = "GETS All";
-                    //     state = "serverListPrep";
-                    // } else {
-                        if ((serverCount == 0 || listUpdated == false) && inString.contains("JOBN")) {
-                            job = new Job(inString);
-                            outString = "GETS Capable " + job.getJobNeeds();
-                            state = "serverListPrep";
-                        }
-                    // }
+                    if ((serverCount == 0 || listUpdated == false) && inString.contains("JOBN")) {
+                        job = new Job(inString);
+                        outString = "GETS Capable " + job.getJobNeeds();
+                        state = "serverListPrep";
+                    }
 
                     if (!serverList.isEmpty() && listUpdated == true) {
                         if (inString.contains("JOBN")) {
@@ -75,9 +67,6 @@ public class Main {
                         } else {
                             state = "JobScheduling";
                         }
-                    }
-                    if (inString.contains("JCPL")) {
-                        finishJob(inString, serverList);
                     }
                     if (inString.contains("NONE")) {
                         outString = "QUIT";
@@ -91,15 +80,8 @@ public class Main {
                     state = "serverListReading";
                     break;
                 case "serverListReading":
-                    // if (fullServerList.isEmpty()) {
-                    //     readServerList(inString, fullServerList, socketIn, serverCount);
-                    // } else {
-                        //copyJobCount(true, serverList, fullServerList);
-                        readServerList(inString, serverList, socketIn, serverCount);
-                        //copyJobCount(false, serverList, fullServerList);
-
-                        listUpdated = true;
-                    // }
+                    readServerList(inString, serverList, socketIn, serverCount);
+                    listUpdated = true;
                     scheduler = new Scheduler(serverList, job);
                     outString = "OK";
                     state = "Ready";
@@ -137,11 +119,6 @@ public class Main {
                     quitCommunication(din, dout, s);
             }
 
-            // System.out.println("InString: " + inString);
-            // System.out.println("OutString: " + outString);
-            // System.out.println("State: " + state + "\n");
-            // Thread.sleep(500);
-
             if (!(outString.equals("REDY") && state.equals("JobScheduling"))) {
                 dout.write((outString + "\n").getBytes());
             }
@@ -167,47 +144,11 @@ public class Main {
         }
     }
 
-    private static void copyJobCount(boolean direction, ArrayList<Server> serverList,
-            ArrayList<Server> fullServerList) {
-        // direction, true is serverList -> fullServerList. false is fullServerList ->
-        // serverList
-        if (direction) {
-            for (int i = 0; i < fullServerList.size(); i++) {
-                for (int j = 0; j < serverList.size(); j++) {
-                    if (serverList.get(j).getServerTypeID().equals(fullServerList.get(i).getServerTypeID())) {
-                        fullServerList.get(i).jobCount = serverList.get(j).jobCount;
-                    }
-                }
-            }
-        } else {
-            for (int i = 0; i < fullServerList.size(); i++) {
-                for (int j = 0; j < serverList.size(); j++) {
-                    if (serverList.get(j).getServerTypeID().equals(fullServerList.get(i).getServerTypeID())) {
-                        serverList.get(j).jobCount = fullServerList.get(i).jobCount;
-                    }
-                }
-            }
-        }
-    }
-
     private static int getDataCount(String inString) {
         String[] splitString = inString.split(" ");
         int count = Integer.parseInt(splitString[1]);
 
         return count;
-    }
-
-    private static void finishJob(String inString, ArrayList<Server> serverList) {
-        String[] splitString = inString.split(" ");
-        String serverType = splitString[3];
-        String serverID = splitString[4];
-
-        for (int i = 0; i < serverList.size(); i++) {
-            if (serverList.get(i).serverType == serverType && serverList.get(i).serverID == serverID) {
-                serverList.get(i).jobCount--;
-                break;
-            }
-        }
     }
 
     private static void quitCommunication(DataInputStream din, DataOutputStream dout, Socket s) throws IOException {

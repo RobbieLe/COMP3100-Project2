@@ -1,7 +1,6 @@
 public class Server {
     String serverType, serverID, state, curStartTime, coreCount, memory, disk;
     String waitingJobs, runningJobs;
-    int jobCount;
 
     public Server(String serverDetail) {
         String[] splitString = serverDetail.split(" ");

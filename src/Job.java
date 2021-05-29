@@ -11,12 +11,6 @@ public class Job {
         memory = splitString[5];
         storage = splitString[6];
     }
-
-    //  Maybe setup getters for all attributes
-    
-    // public String getSubmitTime() {
-    //     return submitTime;
-    // }
     
     public String getJobNeeds() {
         return coreCount + " " + memory + " " + storage;
