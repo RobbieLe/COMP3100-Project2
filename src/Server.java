@@ -10,7 +10,7 @@ public class Server {
         serverType = splitString[0]; // Size of server/name of the design
         serverID = splitString[1]; // Identification number for the server
         state = splitString[2]; // Shows what the server is currently doing ("inactive, booting, idle, active")
-        curStartTime = splitString[3]; // The server's original start of a job/queue
+        curStartTime = splitString[3]; // The last time in the simulation of when the server is now active
         coreCount = splitString[4]; // The amount of CPU cores present on the server
         memory = splitString[5]; // The amount of RAM present on the server
         disk = splitString[6]; // The amount of Disk Storage present on the server

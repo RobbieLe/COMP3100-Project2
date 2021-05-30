@@ -8,22 +8,27 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        Socket s = new Socket("localhost", 50000);
-        DataInputStream din = new DataInputStream(s.getInputStream());
-        DataOutputStream dout = new DataOutputStream(s.getOutputStream());
-        BufferedReader socketIn = new BufferedReader(new InputStreamReader(din));
+        Socket s = new Socket("localhost", 50000); // Local machine with the port 50000, used to communicate with ds-sim
+        DataInputStream din = new DataInputStream(s.getInputStream()); // Allows receiving of messages from server
+        DataOutputStream dout = new DataOutputStream(s.getOutputStream()); // Allows sending of messages to server
+        
+        // Keeps the messages from the server in the memory buffer to be read in the client later
+        BufferedReader socketIn = new BufferedReader(new InputStreamReader(din)); 
 
+        // Holds the servers available for job scheduling in an ArrayList
         ArrayList<Server> serverList = new ArrayList<Server>();
 
-        Job job = null;
-        Scheduler scheduler = new Scheduler(serverList);
+        Job job = null; // Create the Job object, to allow for storage and easy reference to it
+        Scheduler scheduler = new Scheduler(serverList); // Calls the schedule class,
+                                                         // to allow for scheduling of the jobs
 
         // inString = message from server, outString = message to be sent
         // state = determine which switch to be in, based on what was sent and received
         String inString = "", outString = "", state = "Initial";
         int serverCount = 0; // Holds the number of servers that to be read
-        String algorithm = "ATL"; // default to ATL largest algorithm
-        boolean listUpdated = false;
+        String algorithm = "ATL"; // Defaults to ATL largest algorithm
+        boolean listUpdated = false; // Allows the Client to know if the ArrayList serverList was updated with the
+                                     // new GETS Capable message
 
         for (int i = 0; i < args.length - 1; i++) { // Check for command line argument for algorithm to use
             if (args[i].equals("-a")) { // "-a" was used it means there was an specific algorithm selected
@@ -33,9 +38,8 @@ public class Main {
         }
 
         while (!state.equals("QUIT")) { // Loop used to maintain communication with the server
-            // Make sure that we don't try to read a message from the server when we are
-            // beginning OR
-            // when the message to be SENT is "REDY" and we were in the "Ready" state
+            // Make sure that we don't try to read a message from the server 
+            // when we are beginning OR when the message to be SENT is "REDY" and we were in the "Ready" state
             if (!state.equals("Initial") && !(outString.equals("REDY") && state.equals("JobScheduling"))) {
                 inString = socketIn.readLine(); // Read the message sent from the server and save into inString
             }
@@ -51,9 +55,9 @@ public class Main {
                     state = "Ready";
                     break;
 
-                case "Ready":
-                    if (inString.equals("NONE")) { // If the message sent by the server was NONE, begin to quit
-                                                   // communication
+                case "Ready": // Sends the REDY message to the server or proceed to quit
+                    if (inString.equals("NONE")) { // If the message sent by the server was NONE,
+                                                   // begin to quit communication
                         outString = "QUIT";
                         state = "Quitting";
                     } else { // If anything else, send REDY and change to Decision to determine what to do
@@ -95,13 +99,13 @@ public class Main {
                     listUpdated = true; // Change to true, to allow the Client to know that the serverList has been
                                         // updated with servers to be able to handle the job
                     scheduler = new Scheduler(serverList); // Update scheduler to have the current serverList and
-                                                                // the current job
+                                                           // the current job
                     outString = "OK";
                     state = "Ready";
                     break;
 
                 case "JobScheduling":
-                    // When server sends a job message, save the job
+                    // When server sends a job message, save the job into a JOB object
                     if (inString.contains("JOBN")) {
                         job = new Job(inString);
                     }
@@ -118,13 +122,13 @@ public class Main {
                     } else {
                         outString = "SCHD " + job.jobID + " " + scheduler.schedule(algorithm); // Schedule job with
                                                                                                // algorithm
-                        state = "Ready";
+                        state = "Ready"; // Once scheduled, swap back to Ready to send another REDY message to server
                     }
                     listUpdated = false; // Once schedule, swap to false to make the Client to update the list for new
                                          // servers
                     break;
 
-                case "Quitting": // Process to start quitting, send a QUIT message to server
+                case "Quitting": // Proceed to start quitting, send a QUIT message to server and end loop
                     outString = "QUIT";
                     state = "QUIT";
                     break;
@@ -148,20 +152,20 @@ public class Main {
         }
     }
 
-    // Read the messages sent by the server when request for the list of servers
-    // with the GETS
+    // Read the messages sent by the server when the client requests for the list of servers
+    // with the GETS message
     private static void readServerList(String inString, ArrayList<Server> serverList, BufferedReader socketIn,
             int serverCount) throws IOException {
 
         if (!serverList.isEmpty()) { // If the current serverList is not empty, delete all entries
             serverList.removeAll(serverList);
         }
-        Server temp;
+        Server temp; // Will be used to create a Server object and then be added to the ArrayList serverList
         for (int i = 0; i < serverCount; i++) { // Loop through messages that list the servers from GETS Capable
             if (i != 0) { // Ensure we don't skip the first entry of the server list by reading past it
                 inString = socketIn.readLine();
             }
-            temp = new Server(inString); // Add sever entry with values from message from server
+            temp = new Server(inString); // Add sever entry with values from the message from the server
             serverList.add(temp); // Add the server we just made into the ArrayList serverList
         }
     }
@@ -177,6 +181,7 @@ public class Main {
         return count;
     }
 
+    // Closes off the connection with the server
     private static void quitCommunication(DataInputStream din, DataOutputStream dout, Socket s) throws IOException {
         din.close(); // Close InputBufferStream
         dout.close(); // Close OutputBufferStream

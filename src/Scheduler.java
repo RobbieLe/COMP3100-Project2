@@ -27,10 +27,9 @@ public class Scheduler {
     public String allToLargest() {
         Server largest = getLargestServer(serverList); // Finds the largest server within the current serverList and
                                                        // saves it
-        String outString = largest.serverType + " " + largest.serverID; // have the string prep for the SCHD message
-                                                                        // with the server details (type and ID)
 
-        return outString;
+        return largest.getServerTypeID(); // have the string prep for the SCHD message with the server details 
+                                          // (type and ID)
     }
 
     // Custom algorithm to schedule jobs to the server with the least amount of

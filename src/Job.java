@@ -7,7 +7,7 @@ public class Job {
 
         submitTime = splitString[1]; // When the job was submitted to the client
         jobID = splitString[2]; // The job identification number, typically a integer
-        estRuntime = splitString[3]; // How long the job is expected to run
+        estRuntime = splitString[3]; // The predicted amount of time need to complete
         coreCount = splitString[4]; // How many CPU cores the job will need
         memory = splitString[5]; // How much RAM the job needs
         storage = splitString[6]; // How much Disk Storage the job needs
